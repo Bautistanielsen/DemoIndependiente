@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "chosen": "01-club-invitation.html",
+  "handoffs": {
+    "01-club-invitation.html": {
+      "status": "implemented",
+      "queued": false,
+      "sentAt": "2026-11-09T00:13:41.959Z",
+      "startedAt": "2026-11-09T00:14:53.646Z",
+      "implementedAt": "2026-11-09T00:22:37.967Z",
+      "note": "Corrected to reuse the exact member page, navigation labels and icons. Only Mi carnet content changes for the nonmember. Twelve rendered-page tests, TypeScript and the isolated production build passed; no browser visual proof or independent verification was available."
+    }
+  }
+}

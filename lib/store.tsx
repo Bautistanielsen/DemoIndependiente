@@ -16,6 +16,7 @@ import {
   PAGOS_INICIALES,
   RESERVAS_INICIALES,
   YO,
+  NO_SOCIO,
   type Cobro,
   type Cuota,
   type EspacioId,
@@ -32,9 +33,12 @@ type State = {
   rol: Rol | null;
   cuotas: Cuota[];
   pagos: Pago[];
+  noSocioCuotas: Cuota[];
+  noSocioPagos: Pago[];
   cobros: Cobro[];
   reservas: Reserva[];
   padelMios: string[];
+  padelNoSocioMios: string[];
   padelPrecios: { desde: string; precio: number }[];
   gastos: Gasto[];
   asistencia: Record<string, boolean>;
@@ -45,9 +49,12 @@ const inicial = (): State => ({
   rol: null,
   cuotas: CUOTAS_INICIALES,
   pagos: PAGOS_INICIALES,
+  noSocioCuotas: CUOTAS_INICIALES.map((cuota) => ({ ...cuota, social: 0 })),
+  noSocioPagos: [],
   cobros: COBROS_INICIALES,
   reservas: RESERVAS_INICIALES,
   padelMios: [],
+  padelNoSocioMios: [],
   padelPrecios: PADEL_PRECIOS_INICIALES,
   gastos: GASTOS_INICIALES,
   asistencia: {},
@@ -56,6 +63,11 @@ const inicial = (): State => ({
 
 type Demo = {
   state: State;
+  persona: { dni: string; nombre: string; apellido: string };
+  basePath: "/socio" | "/no-socio";
+  cuotas: Cuota[];
+  pagos: Pago[];
+  padelMios: string[];
   ready: boolean;
   login: (rol: Rol) => void;
   logout: () => void;
@@ -109,14 +121,21 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => setState((s) => ({ ...s, rol: null })), []);
   const reiniciar = useCallback(() => setState(inicial()), []);
 
+  const esNoSocio = state.rol === "no-socio";
+  const persona = esNoSocio ? NO_SOCIO : YO;
+  const basePath = esNoSocio ? "/no-socio" : "/socio";
+  const cuotas = esNoSocio ? state.noSocioCuotas : state.cuotas;
+  const pagos = esNoSocio ? state.noSocioPagos : state.pagos;
+  const padelMios = esNoSocio ? state.padelNoSocioMios : state.padelMios;
+
   const pagarCuotas = useCallback(
     (ids: string[]) => {
-      const elegidas = state.cuotas.filter((c) => ids.includes(c.id));
+      const elegidas = cuotas.filter((c) => ids.includes(c.id));
       const monto = elegidas.reduce((t, c) => t + c.social + c.actividad, 0);
       const hoy = new Date(2026, 10, 5);
       const pago: Pago = {
-        id: `R-${1013 + state.pagos.length - PAGOS_INICIALES.length}`,
-        socio: `${YO.nombre} ${YO.apellido}`,
+        id: esNoSocio ? `R-NS-${1001 + pagos.length}` : `R-${1013 + pagos.length - PAGOS_INICIALES.length}`,
+        socio: `${persona.nombre} ${persona.apellido}`,
         concepto: `Cuota ${elegidas.map((c) => c.mes.toLowerCase()).join(" y ")}`,
         fecha: `${dos(hoy.getDate())}/${dos(hoy.getMonth() + 1)}/${hoy.getFullYear()}`,
         monto,
@@ -133,13 +152,14 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       };
       setState((s) => ({
         ...s,
-        cuotas: s.cuotas.filter((c) => !ids.includes(c.id)),
-        pagos: [pago, ...s.pagos],
+        ...(esNoSocio
+          ? { noSocioCuotas: s.noSocioCuotas.filter((c) => !ids.includes(c.id)), noSocioPagos: [pago, ...s.noSocioPagos] }
+          : { cuotas: s.cuotas.filter((c) => !ids.includes(c.id)), pagos: [pago, ...s.pagos] }),
         cobros: [cobro, ...s.cobros],
       }));
       return pago;
     },
-    [state.cuotas, state.pagos.length],
+    [cuotas, pagos.length, persona, esNoSocio],
   );
 
   const solicitarReserva = useCallback(
@@ -154,7 +174,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
             dia,
             turno,
             evento: evento || "Evento",
-            quien: `${YO.nombre} ${YO.apellido}`,
+            quien: s.rol === "no-socio" ? `${NO_SOCIO.nombre} ${NO_SOCIO.apellido}` : `${YO.nombre} ${YO.apellido}`,
             estado: "pendiente",
           },
         ],
@@ -172,7 +192,12 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   );
 
   const reservarPadel = useCallback(
-    (clave: string) => setState((s) => ({ ...s, padelMios: [...s.padelMios, clave] })),
+    (clave: string) => setState((s) => ({
+      ...s,
+      ...(s.rol === "no-socio"
+        ? { padelNoSocioMios: [...s.padelNoSocioMios, clave] }
+        : { padelMios: [...s.padelMios, clave] }),
+    })),
     [],
   );
 
@@ -227,6 +252,11 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     <Ctx.Provider
       value={{
         state,
+        persona,
+        basePath,
+        cuotas,
+        pagos,
+        padelMios,
         ready,
         login,
         logout,

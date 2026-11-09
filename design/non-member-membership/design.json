@@ -1,0 +1,13 @@
+{
+  "title": "Mi carnet · No socio",
+  "brief": "Exact member screen structure, navigation, icons and existing carnet styling. Only the Mi carnet content changes: the person's name, a brief invitation and a WhatsApp CTA. No separate promotional screen.",
+  "artboards": [
+    {
+      "file": "01-club-invitation.html",
+      "title": "Mismo carnet, invitación breve",
+      "tradeoff": "Reuses the existing member layout; the invitation is intentionally short and the club WhatsApp number is not configured.",
+      "width": 390,
+      "height": 900
+    }
+  ]
+}

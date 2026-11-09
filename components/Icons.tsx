@@ -10,6 +10,13 @@ const base = {
   "aria-hidden": true,
 };
 
+export const IconInicio = () => (
+  <svg {...base}>
+    <path d="m3 10 9-7 9 7" />
+    <path d="M5 9v12h14V9M9 21v-8h6v8" />
+  </svg>
+);
+
 export const IconCarnet = () => (
   <svg {...base}>
     <rect x="3" y="5" width="18" height="14" rx="2" />

@@ -1,6 +1,6 @@
 // Datos de ejemplo de la demo. Todo es ficticio.
 
-export type Rol = "socio" | "secretaria" | "comision" | "dt";
+export type Rol = "socio" | "no-socio" | "secretaria" | "comision" | "dt";
 
 export const plata = (n: number) =>
   "$" + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -8,6 +8,9 @@ export const plata = (n: number) =>
 export const DIAS_SEMANA = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 export const DEMO_DNI = "38456123";
 export const DEMO_CLAVE = "1234";
+export const DEMO_NO_SOCIO_DNI = "40765892";
+export const DEMO_NO_SOCIO_CLAVE = "5678";
+export const NO_SOCIO = { dni: DEMO_NO_SOCIO_DNI, nombre: "Mateo", apellido: "Álvarez" };
 
 /* ---------- El socio de la demo ---------- */
 

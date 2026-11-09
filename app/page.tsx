@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDemo } from "@/lib/store";
-import { DEMO_CLAVE, DEMO_DNI, type Rol } from "@/lib/data";
+import { DEMO_CLAVE, DEMO_DNI, DEMO_NO_SOCIO_CLAVE, DEMO_NO_SOCIO_DNI, type Rol } from "@/lib/data";
 import { Escudo } from "@/components/ui";
 
 const DESTINO: Record<Rol, string> = {
   socio: "/socio/carnet",
+  "no-socio": "/no-socio/carnet",
   secretaria: "/secretaria",
   comision: "/comision",
   dt: "/dt",
@@ -32,6 +34,9 @@ export default function Login() {
     if (limpio === DEMO_DNI && clave === DEMO_CLAVE) {
       setError("");
       entrar("socio");
+    } else if (limpio === DEMO_NO_SOCIO_DNI && clave === DEMO_NO_SOCIO_CLAVE) {
+      setError("");
+      entrar("no-socio");
     } else {
       setError("El DNI o la contraseña no coinciden. Revisalos y probá de nuevo.");
     }
@@ -56,24 +61,38 @@ export default function Login() {
               onChange={(e) => setDni(e.target.value)}
             />
           </label>
-          <label className="campo">
-            <span>Tu contraseña</span>
-            <input
-              type={ver ? "text" : "password"}
-              autoComplete="current-password"
-              value={clave}
-              onChange={(e) => setClave(e.target.value)}
-            />
-          </label>
-          <button type="button" className="btn btn-sec btn-sm" onClick={() => setVer((v) => !v)}>
-            {ver ? "Ocultar contraseña" : "Ver contraseña"}
-          </button>
+          <div className="campo">
+            <label htmlFor="password" className="campo-label">Tu contraseña</label>
+            <div className="password-field">
+              <input
+                id="password"
+                type={ver ? "text" : "password"}
+                autoComplete="current-password"
+                value={clave}
+                onChange={(e) => setClave(e.target.value)}
+              />
+              <button
+                type="button"
+                className="password-toggle"
+                aria-label={ver ? "Ocultar contraseña" : "Mostrar contraseña"}
+                aria-pressed={ver}
+                aria-controls="password"
+                onClick={() => setVer((v) => !v)}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                  <circle cx="12" cy="12" r="3" />
+                  {ver && <path d="m3 3 18 18" />}
+                </svg>
+              </button>
+            </div>
+          </div>
           {error && <p className="error" role="alert">{error}</p>}
           <button type="submit" className="btn block" style={{ marginTop: 20 }}>
-            Ver mi carnet
+            Ingresar
           </button>
           <p className="ayuda" style={{ textAlign: "center" }}>
-            ¿Te olvidaste la contraseña? Te la mandamos por WhatsApp o email.
+            <Link href="/recuperar-contrasena">¿Olvidaste tu contraseña?</Link>
           </p>
         </form>
 
@@ -82,6 +101,11 @@ export default function Login() {
           <p>DNI <b>{DEMO_DNI}</b> · contraseña <b>{DEMO_CLAVE}</b></p>
           <button className="btn btn-neg btn-sm block" style={{ marginTop: 10 }} onClick={() => entrar("socio")}>
             Entrar directo como socia
+          </button>
+          <p style={{ marginTop: 18 }}><strong>Demo · no socio de ejemplo</strong></p>
+          <p>DNI <b>{DEMO_NO_SOCIO_DNI}</b> · contraseña <b>{DEMO_NO_SOCIO_CLAVE}</b></p>
+          <button className="btn btn-sec btn-sm block" style={{ marginTop: 10 }} onClick={() => entrar("no-socio")}>
+            Entrar directo como no socio
           </button>
         </div>
 

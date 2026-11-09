@@ -8,7 +8,7 @@ import { Chip, Confirmacion, Encabezado } from "@/components/ui";
 const DIAS = Array.from({ length: 7 }, (_, i) => new Date(2026, 10, 5 + i));
 
 export default function Padel() {
-  const { state, reservarPadel, precioPadel } = useDemo();
+  const { state, padelMios, reservarPadel, precioPadel } = useDemo();
   const [i, setI] = useState(0);
   const [hecho, setHecho] = useState<string | null>(null);
   const fecha = DIAS[i];
@@ -28,8 +28,8 @@ export default function Padel() {
 
         {PADEL_TURNOS.map((hora, t) => {
           const clave = `${fecha.getDate()}-${t}`;
-          const mio = state.padelMios.includes(clave);
-          const ocupado = !mio && padelOcupado(fecha.getDate(), t);
+          const mio = padelMios.includes(clave);
+          const ocupado = !mio && (padelOcupado(fecha.getDate(), t) || state.padelMios.includes(clave) || state.padelNoSocioMios.includes(clave));
           return (
             <div key={clave} className="fila turno">
               <div className="izq">

@@ -3,17 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDemo } from "@/lib/store";
-import { plata, type Pago } from "@/lib/data";
+import { plata, YO, type Pago } from "@/lib/data";
 import { Chip, Confirmacion, Encabezado, Escudo, Marcador, Procesando, Sep } from "@/components/ui";
 
 export default function Cuotas() {
-  const { state, pagarCuotas } = useDemo();
+  const { state, persona, basePath, cuotas, pagos, pagarCuotas } = useDemo();
   const router = useRouter();
   const [fuera, setFuera] = useState<string[]>([]); // cuotas que el socio destildó
   const [fase, setFase] = useState<"idle" | "procesando" | "ok">("idle");
   const [recibo, setRecibo] = useState<Pago | null>(null);
 
-  const elegidas = state.cuotas.filter((c) => !fuera.includes(c.id));
+  const elegidas = cuotas.filter((c) => !fuera.includes(c.id));
   const total = elegidas.reduce((t, c) => t + c.social + c.actividad, 0);
 
   const pagar = () => {
@@ -29,9 +29,9 @@ export default function Cuotas() {
 
   return (
     <>
-      <Encabezado titulo="Mis cuotas" sub="Lucía Fernández · Socia Nº 1247" />
+      <Encabezado titulo="Mis cuotas" sub={`${persona.nombre} ${persona.apellido} · ${state.rol === "no-socio" ? "No socio" : `Socia Nº ${YO.nro}`}`} />
       <div className="wrap">
-        {state.cuotas.length === 0 ? (
+        {cuotas.length === 0 ? (
           <Marcador tono="ok" etiqueta="Tu estado" numero="Estás al día" sub="No debés nada. ¡Gracias por ser parte del club!" />
         ) : (
           <>
@@ -41,7 +41,7 @@ export default function Cuotas() {
               sub={`${elegidas.length} ${elegidas.length === 1 ? "cuota" : "cuotas"} seleccionadas`}
             />
             <div style={{ marginTop: 12 }}>
-              {state.cuotas.map((c) => (
+              {cuotas.map((c) => (
                 <label key={c.id} className="fila check" style={{ justifyContent: "space-between" }}>
                   <span style={{ display: "flex", gap: 14, alignItems: "center" }}>
                     <input
@@ -53,7 +53,7 @@ export default function Cuotas() {
                     />
                     <span>
                       <b>{c.mes}</b>
-                      <small>Social {plata(c.social)} + Vóley {plata(c.actividad)}</small>
+                      <small>{state.rol === "no-socio" ? `Vóley ${plata(c.actividad)}` : `Social ${plata(c.social)} + Vóley ${plata(c.actividad)}`}</small>
                       {c.estado === "vencida" ? (
                         <Chip tipo="deuda">Venció el {c.vence}</Chip>
                       ) : (
@@ -74,7 +74,7 @@ export default function Cuotas() {
 
         <Sep />
         <h2 className="tit">Pagos anteriores</h2>
-        {state.pagos.map((p) => (
+        {pagos.map((p) => (
           <div key={p.id} className="fila">
             <div className="izq">
               <b>{p.concepto}</b>
@@ -90,10 +90,10 @@ export default function Cuotas() {
         <Confirmacion
           titulo="¡Pago recibido!"
           detalle="Ya quedó registrado. Te mandamos el recibo por WhatsApp."
-          boton="Ver mi carnet"
+          boton={state.rol === "no-socio" ? "Volver a mi cuenta" : "Ver mi carnet"}
           onClose={() => {
             setFase("idle");
-            router.push("/socio/carnet");
+            router.push(`${basePath}/carnet`);
           }}
         >
           <div className="recibo">
@@ -104,7 +104,7 @@ export default function Cuotas() {
                 <small className="apagado">Club Atlético Independiente · Lobería</small>
               </div>
             </div>
-            <div className="fila"><span>Socia</span><b>{recibo.socio}</b></div>
+            <div className="fila"><span>{state.rol === "no-socio" ? "Persona" : "Socia"}</span><b>{recibo.socio}</b></div>
             <div className="fila"><span>Concepto</span><b>{recibo.concepto}</b></div>
             <div className="fila"><span>Fecha</span><b>{recibo.fecha}</b></div>
             <div className="fila"><span>Medio</span><b>{recibo.medio}</b></div>

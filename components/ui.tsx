@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { useDemo } from "@/lib/store";
 
 export function Escudo({ alto = 64 }: { alto?: number }) {
   // eslint-disable-next-line @next/next/no-img-element
@@ -8,6 +10,8 @@ export function Escudo({ alto = 64 }: { alto?: number }) {
 }
 
 export function Encabezado({ titulo, sub, escudo = true }: { titulo: string; sub?: string; escudo?: boolean }) {
+  const { state, logout } = useDemo();
+  const router = useRouter();
   return (
     <header className="enc">
       <div>
@@ -15,6 +19,18 @@ export function Encabezado({ titulo, sub, escudo = true }: { titulo: string; sub
         {sub && <p>{sub}</p>}
       </div>
       {escudo && <Escudo alto={64} />}
+      {(state.rol === "socio" || state.rol === "no-socio") && (
+        <button
+          type="button"
+          className="salir-enc"
+          onClick={() => {
+            logout();
+            router.replace("/");
+          }}
+        >
+          Salir
+        </button>
+      )}
     </header>
   );
 }

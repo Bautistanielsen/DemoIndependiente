@@ -6,7 +6,7 @@ import { useEffect, type ReactNode } from "react";
 import { useDemo } from "@/lib/store";
 import type { Rol } from "@/lib/data";
 import { Escudo } from "./ui";
-import { IconCarnet, IconCuotas, IconPadel, IconReservas } from "./Icons";
+import { IconInicio, IconCuotas, IconPadel, IconReservas } from "./Icons";
 
 function useGuard(rol: Rol) {
   const { ready, state } = useDemo();
@@ -20,36 +20,27 @@ function useGuard(rol: Rol) {
 const Cargando = () => <div className="cargando">Cargando…</div>;
 
 const SOCIO_ITEMS = [
-  { href: "/socio/carnet", label: "Carnet", Icono: IconCarnet },
+  { href: "/socio/carnet", label: "Inicio", Icono: IconInicio },
   { href: "/socio/cuotas", label: "Cuotas", Icono: IconCuotas },
   { href: "/socio/reservas", label: "Salones", Icono: IconReservas },
   { href: "/socio/padel", label: "Pádel", Icono: IconPadel },
 ];
 
-export function SocioShell({ children }: { children: ReactNode }) {
-  const ok = useGuard("socio");
+export function SocioShell({ children, rol = "socio" }: { children: ReactNode; rol?: "socio" | "no-socio" }) {
+  const ok = useGuard(rol);
+  const items = rol === "socio" ? SOCIO_ITEMS : SOCIO_ITEMS.filter((item) => item.href !== "/socio/cuotas").map((item) => ({
+    ...item,
+    href: item.href.replace("/socio/", "/no-socio/"),
+  }));
   const path = usePathname();
-  const { logout } = useDemo();
-  const router = useRouter();
   if (!ok) return <Cargando />;
   return (
-    <div className="socio-app">
+    <div className={rol === "no-socio" ? "socio-app no-socio-app" : "socio-app"}>
       <main className="socio-main">
         {children}
-        <div className="wrap" style={{ paddingTop: 0 }}>
-          <button
-            className="btn btn-sec btn-sm"
-            onClick={() => {
-              logout();
-              router.replace("/");
-            }}
-          >
-            Salir
-          </button>
-        </div>
       </main>
       <nav className="botnav" aria-label="Principal">
-        {SOCIO_ITEMS.map(({ href, label, Icono }) => (
+        {items.map(({ href, label, Icono }) => (
           <Link key={href} href={href} aria-current={path === href ? "page" : undefined}>
             <Icono />
             {label}

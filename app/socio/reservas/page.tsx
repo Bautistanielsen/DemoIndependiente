@@ -16,7 +16,7 @@ import { Chip, Confirmacion, Encabezado, Sep } from "@/components/ui";
 const SEMANA = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
 export default function Reservas() {
-  const { state, solicitarReserva } = useDemo();
+  const { state, persona, solicitarReserva } = useDemo();
   const [espacio, setEspacio] = useState<EspacioId>("quinta");
   const [dia, setDia] = useState<number | null>(null);
   const [turno, setTurno] = useState<TurnoId | null>(null);
@@ -26,7 +26,7 @@ export default function Reservas() {
   const info = ESPACIOS[espacio];
   const deEspacio = state.reservas.filter((r) => r.espacio === espacio && r.estado !== "rechazada");
   const ocupados = (d: number) => deEspacio.filter((r) => r.dia === d);
-  const mias = state.reservas.filter((r) => r.quien === "Lucía Fernández");
+  const mias = state.reservas.filter((r) => r.quien === `${persona.nombre} ${persona.apellido}`);
 
   const elegirEspacio = (e: EspacioId) => {
     setEspacio(e);
